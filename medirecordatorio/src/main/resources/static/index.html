@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Recordatorio de Medicamentos</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f3faf4; color: #0b1f3a; padding: 20px; }
+        main { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; }
+        h1 { color: #14532d; }
+        button { background: #2e7d32; color: white; border: 0; padding: 10px 15px; border-radius: 8px; cursor: pointer; }
+        .tarjeta { background: #e8f5e9; margin: 15px 0; padding: 15px; border-radius: 8px; border-left: 5px solid #2e7d32; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Recordatorio de Medicamentos</h1>
+    <button onclick="cargarMedicamentos()">Cargar Medicamentos</button>
+    <div id="listaMedicamentos"></div>
+</main>
+
+<script>
+    async function cargarMedicamentos() {
+        const respuesta = await fetch('/api/medicamentos');
+        const medicamentos = await respuesta.json();
+        const contenedor = document.getElementById('listaMedicamentos');
+        contenedor.innerHTML = '';
+
+        medicamentos.forEach(med => {
+            const item = document.createElement('div');
+            item.className = 'tarjeta';
+            item.innerHTML = `
+            <h3>${med.nombre} - ${med.dosis}</h3>
+            <p><strong>Hora:</strong> ${med.hora} | <strong>Frecuencia:</strong> ${med.frecuencia}</p>
+            <p><strong>Efectos Secundarios:</strong> ${med.efectosSecundarios}</p>
+            <p><strong>No mezclar con:</strong> ${med.interaccionesNoPermitidas}</p>
+        `;
+            contenedor.appendChild(item);
+        });
+    }
+</script>
+</body>
+</html>

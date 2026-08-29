@@ -3,19 +3,21 @@ package com.etitc.medirecordatorio.model;
 public class Medicamento {
     private Long id;
     private String nombre;
+    private String categoria;
+    private String paraQueSirve;
     private String dosis;
     private String hora;
     private String frecuencia;
     private String efectosSecundarios;
     private String interaccionesNoPermitidas;
 
-    // Constructor vacío necesario para Spring
     public Medicamento() {}
 
-    // Constructor con parámetros
-    public Medicamento(Long id, String nombre, String dosis, String hora, String frecuencia, String efectosSecundarios, String interaccionesNoPermitidas) {
+    public Medicamento(Long id, String nombre, String categoria, String paraQueSirve, String dosis, String hora, String frecuencia, String efectosSecundarios, String interaccionesNoPermitidas) {
         this.id = id;
         this.nombre = nombre;
+        this.categoria = categoria;
+        this.paraQueSirve = paraQueSirve;
         this.dosis = dosis;
         this.hora = hora;
         this.frecuencia = frecuencia;
@@ -23,12 +25,17 @@ public class Medicamento {
         this.interaccionesNoPermitidas = interaccionesNoPermitidas;
     }
 
-    // Métodos Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
+
+    public String getParaQueSirve() { return paraQueSirve; }
+    public void setParaQueSirve(String paraQueSirve) { this.paraQueSirve = paraQueSirve; }
 
     public String getDosis() { return dosis; }
     public void setDosis(String dosis) { this.dosis = dosis; }

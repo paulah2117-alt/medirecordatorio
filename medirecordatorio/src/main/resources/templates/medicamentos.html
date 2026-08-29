@@ -1,10 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Recordatorio de Medicamentos</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; padding: 25px; margin: 0; }
+        main { max-width: 950px; margin: 0 auto; background: white; padding: 30px; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        h1 { color: #1e40af; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-top: 0; }
+        .tarjeta-med { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 6px solid #2563eb; padding: 18px; margin-bottom: 20px; border-radius: 8px; }
+        .encabezado-med { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .nombre-med { font-size: 1.25em; font-weight: bold; color: #0f172a; margin: 0; }
+        .tag-categoria { background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 12px; font-weight: 600; font-size: 0.85em; }
+        .uso-med { background: #f1f5f9; padding: 8px 12px; border-radius: 6px; font-size: 0.95em; color: #334155; margin-bottom: 12px; }
+        .info-dosis { color: #475569; font-size: 0.95em; margin-bottom: 8px; }
+        .alerta { background: #fef2f2; border-left: 5px solid #ef4444; padding: 10px 14px; margin-top: 10px; border-radius: 4px; font-size: 0.9em; }
+        .alerta strong { color: #991b1b; }
+    </style>
 </head>
 <body>
+<main>
+    <h1 th:text="${titulo}">Recordatorio de Medicamentos</h1>
+    <p>Guía y catálogo dinámico por categorías terapéuticas (Spring MVC + Thymeleaf).</p>
 
+    <div th:each="med : ${listaMedicamentos}" class="tarjeta-med">
+        <div class="encabezado-med">
+            <h3 class="nombre-med" th:text="${med.nombre}">Nombre Medicamento</h3>
+            <span class="tag-categoria" th:text="${med.categoria}">Categoría</span>
+        </div>
+
+        <div class="uso-med">
+            💡 <strong>¿Para qué sirve?:</strong> <span th:text="${med.paraQueSirve}">Descripción de uso</span>
+        </div>
+
+        <p class="info-dosis">
+            <strong>Dosis:</strong> <span th:text="${med.dosis}">500mg</span> |
+            <strong>Hora:</strong> <span th:text="${med.hora}">08:00 AM</span> |
+            <strong>Frecuencia:</strong> <span th:text="${med.frecuencia}">Cada 8 horas</span>
+        </p>
+
+        <p style="margin: 4px 0; color: #475569; font-size: 0.95em;">
+            <strong>Efectos Secundarios:</strong> <span th:text="${med.efectosSecundarios}">Ninguno</span>
+        </p>
+
+        <div class="alerta">
+            <strong>⚠️ No mezclar con:</strong> <span th:text="${med.interaccionesNoPermitidas}">Ninguna</span>
+        </div>
+    </div>
+</main>
 </body>
 </html>

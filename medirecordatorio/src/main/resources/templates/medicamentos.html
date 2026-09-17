@@ -2,50 +2,182 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Recordatorio de Medicamentos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo}">Recordatorio de Medicamentos</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; padding: 25px; margin: 0; }
-        main { max-width: 950px; margin: 0 auto; background: white; padding: 30px; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
-        h1 { color: #1e40af; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-top: 0; }
-        .tarjeta-med { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 6px solid #2563eb; padding: 18px; margin-bottom: 20px; border-radius: 8px; }
-        .encabezado-med { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .nombre-med { font-size: 1.25em; font-weight: bold; color: #0f172a; margin: 0; }
-        .tag-categoria { background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 12px; font-weight: 600; font-size: 0.85em; }
-        .uso-med { background: #f1f5f9; padding: 8px 12px; border-radius: 6px; font-size: 0.95em; color: #334155; margin-bottom: 12px; }
-        .info-dosis { color: #475569; font-size: 0.95em; margin-bottom: 8px; }
-        .alerta { background: #fef2f2; border-left: 5px solid #ef4444; padding: 10px 14px; margin-top: 10px; border-radius: 4px; font-size: 0.9em; }
-        .alerta strong { color: #991b1b; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            margin: 0;
+            padding: 20px;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            color: #1e40af;
+            margin: 0;
+            font-size: 1.6rem;
+        }
+
+        .botonera {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 9px 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-nuevo {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .btn-nuevo:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-medico {
+            background-color: #0284c7;
+            color: white;
+        }
+
+        .btn-medico:hover {
+            background-color: #0369a1;
+        }
+
+        .btn-paciente {
+            background-color: #16a34a;
+            color: white;
+        }
+
+        .btn-paciente:hover {
+            background-color: #15803d;
+        }
+
+        .tarjeta-med {
+            background: white;
+            border-left: 5px solid #2563eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        .tarjeta-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .nombre-med {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .categoria-badge {
+            background-color: #dbeafe;
+            color: #1e40af;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .info-bloque {
+            background-color: #f1f5f9;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .detalles {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: #475569;
+            margin-bottom: 12px;
+        }
+
+        .alerta-interaccion {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
+
 <main>
-    <h1 th:text="${titulo}">Recordatorio de Medicamentos</h1>
-    <p>Guía y catálogo dinámico por categorías terapéuticas (Spring MVC + Thymeleaf).</p>
-
-    <div th:each="med : ${listaMedicamentos}" class="tarjeta-med">
-        <div class="encabezado-med">
-            <h3 class="nombre-med" th:text="${med.nombre}">Nombre Medicamento</h3>
-            <span class="tag-categoria" th:text="${med.categoria}">Categoría</span>
-        </div>
-
-        <div class="uso-med">
-            💡 <strong>¿Para qué sirve?:</strong> <span th:text="${med.paraQueSirve}">Descripción de uso</span>
-        </div>
-
-        <p class="info-dosis">
-            <strong>Dosis:</strong> <span th:text="${med.dosis}">500mg</span> |
-            <strong>Hora:</strong> <span th:text="${med.hora}">08:00 AM</span> |
-            <strong>Frecuencia:</strong> <span th:text="${med.frecuencia}">Cada 8 horas</span>
-        </p>
-
-        <p style="margin: 4px 0; color: #475569; font-size: 0.95em;">
-            <strong>Efectos Secundarios:</strong> <span th:text="${med.efectosSecundarios}">Ninguno</span>
-        </p>
-
-        <div class="alerta">
-            <strong>⚠️ No mezclar con:</strong> <span th:text="${med.interaccionesNoPermitidas}">Ninguna</span>
+    <!-- Encabezado con Botonera de Navegación de la Semana 7 -->
+    <div class="header-container">
+        <h1 th:text="${titulo}">Gestión y Recordatorio de Medicamentos</h1>
+        <div class="botonera">
+            <a th:href="@{/medicamentos/nuevo}" class="btn btn-nuevo">+ Nuevo Medicamento</a>
+            <a th:href="@{/medicamentos/login-usuario}" class="btn btn-medico">Login Médico</a>
+            <a th:href="@{/medicamentos/login-paciente}" class="btn btn-paciente">Login Paciente</a>
         </div>
     </div>
+
+    <!-- Lista Dinámica de Medicamentos iterada con Thymeleaf -->
+    <div th:each="med : ${listaMedicamentos}" class="tarjeta-med">
+
+        <div class="tarjeta-header">
+            <h3 class="nombre-med" th:text="${med.nombre}">Nombre del Medicamento</h3>
+            <span class="categoria-badge" th:text="${med.categoria}">Categoría</span>
+        </div>
+
+        <div class="info-bloque">
+            💡 <strong>¿Para qué sirve?:</strong> <span th:text="${med.paraQueSirve}">Descripción</span>
+        </div>
+
+        <div class="detalles">
+            <div><strong>Dosis:</strong> <span th:text="${med.dosis}">00 mg</span></div>
+            <div>| <strong>Hora:</strong> <span th:text="${med.hora}">00:00 AM</span></div>
+            <div>| <strong>Frecuencia:</strong> <span th:text="${med.frecuencia}">Cada 0 horas</span></div>
+        </div>
+
+        <div style="font-size: 0.9rem; color: #475569; margin-bottom: 10px;">
+            <strong>Efectos Secundarios:</strong> <span th:text="${med.efectosSecundarios}">Ninguno</span>
+        </div>
+
+        <div class="alerta-interaccion">
+            ⚠️ <strong>No mezclar con:</strong> <span th:text="${med.interaccionesNoPermitidas}">Ninguna</span>
+        </div>
+
+    </div>
 </main>
+
 </body>
 </html>

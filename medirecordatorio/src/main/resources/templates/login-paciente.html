@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Portal del Paciente</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0fdf4; padding: 40px; }
+        .login-card { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #15803d; text-align: center; margin-top: 0; }
+        input { width: 92%; padding: 10px; margin: 8px 0 16px; border: 1px solid #94a3b8; border-radius: 5px; }
+        .btn { width: 100%; padding: 10px; background: #16a34a; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="login-card">
+    <h2>💊 Portal de Recordatorios (Paciente)</h2>
+    <form th:action="@{/medicamentos}" method="get">
+        <label>Número de Identificación (Cédula):</label>
+        <input type="text" placeholder="1020304050" required>
+        <label>Código de Recordatorio:</label>
+        <input type="password" placeholder="••••" required>
+        <button type="submit" class="btn">Ver Mis Medicamentos</button>
+    </form>
+</div>
+</body>
+</html>

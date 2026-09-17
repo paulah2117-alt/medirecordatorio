@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acceso Personal Médico</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #e0f2fe; padding: 40px; }
+        .login-card { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #0369a1; text-align: center; margin-top: 0; }
+        input { width: 92%; padding: 10px; margin: 8px 0 16px; border: 1px solid #94a3b8; border-radius: 5px; }
+        .btn { width: 100%; padding: 10px; background: #0284c7; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="login-card">
+    <h2>👨‍⚕️ Acceso Personal Médico</h2>
+    <form th:action="@{/medicamentos}" method="get">
+        <label>Correo Profesional:</label>
+        <input type="email" placeholder="medico@hospital.com" required>
+        <label>Contraseña:</label>
+        <input type="password" placeholder="••••••••" required>
+        <button type="submit" class="btn">Ingresar al Sistema</button>
+    </form>
+</div>
+</body>
+</html>

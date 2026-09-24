@@ -1,7 +1,19 @@
 package com.etitc.medirecordatorio.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "medicamentos")
 public class Medicamento {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String nombre;
     private String categoria;
     private String paraQueSirve;
@@ -11,9 +23,12 @@ public class Medicamento {
     private String efectosSecundarios;
     private String interaccionesNoPermitidas;
 
-    public Medicamento() {}
+    public Medicamento() {
+    }
 
-    public Medicamento(Long id, String nombre, String categoria, String paraQueSirve, String dosis, String hora, String frecuencia, String efectosSecundarios, String interaccionesNoPermitidas) {
+    public Medicamento(Long id, String nombre, String categoria, String paraQueSirve,
+                       String dosis, String hora, String frecuencia,
+                       String efectosSecundarios, String interaccionesNoPermitidas) {
         this.id = id;
         this.nombre = nombre;
         this.categoria = categoria;
@@ -25,6 +40,7 @@ public class Medicamento {
         this.interaccionesNoPermitidas = interaccionesNoPermitidas;
     }
 
+    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

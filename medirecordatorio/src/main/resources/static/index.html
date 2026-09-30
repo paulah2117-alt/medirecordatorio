@@ -2,41 +2,127 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Recordatorio de Medicamentos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediRecordatorio - Sistema de Gestión</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f3faf4; color: #0b1f3a; padding: 20px; }
-        main { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; }
-        h1 { color: #14532d; }
-        button { background: #2e7d32; color: white; border: 0; padding: 10px 15px; border-radius: 8px; cursor: pointer; }
-        .tarjeta { background: #e8f5e9; margin: 15px 0; padding: 15px; border-radius: 8px; border-left: 5px solid #2e7d32; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3faf4;
+            color: #0b1f3a;
+            margin: 0;
+            padding: 20px;
+        }
+        main {
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            padding: 32px;
+            border-radius: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h1 {
+            color: #14532d;
+            margin-bottom: 20px;
+        }
+        .panel-acciones {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s ease;
+        }
+        .btn:hover {
+            background-color: #1b5e20;
+        }
+        .btn-secundario {
+            background-color: #0284c7;
+        }
+        .btn-secundario:hover {
+            background-color: #0369a1;
+        }
+        .tarjeta-medicamento {
+            background: #e8f5e9;
+            border-left: 5px solid #2e7d32;
+            margin: 15px 0;
+            padding: 18px;
+            border-radius: 10px;
+        }
+        .tarjeta-medicamento h3 {
+            margin: 0 0 10px 0;
+            color: #0f391b;
+        }
+        .tarjeta-medicamento p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 <body>
+
 <main>
     <h1>Recordatorio de Medicamentos</h1>
-    <button onclick="cargarMedicamentos()">Cargar Medicamentos</button>
+    <p>Gestión completa de prescripciones, dosis y horarios cargados desde MySQL.</p>
+
+    <!-- Botones de Acción y Navegación -->
+    <div class="panel-acciones">
+        <button class="btn" onclick="cargarMedicamentos()">Cargar Medicamentos</button>
+        <a href="/formulario-medicamento.html" class="btn btn-secundario">+ Registrar Nuevo Medicamento</a>
+        <a href="/login-paciente.html" class="btn" style="background-color: #4b5563;">Login Paciente</a>
+        <a href="/login-usuario.html" class="btn" style="background-color: #4b5563;">Login Usuario</a>
+    </div>
+
+    <!-- Contenedor donde se cargan las tarjetas de MySQL -->
     <div id="listaMedicamentos"></div>
 </main>
 
 <script>
     async function cargarMedicamentos() {
-        const respuesta = await fetch('/api/medicamentos');
-        const medicamentos = await respuesta.json();
         const contenedor = document.getElementById('listaMedicamentos');
-        contenedor.innerHTML = '';
+        contenedor.innerHTML = '<p>Cargando información desde la base de datos...</p>';
 
-        medicamentos.forEach(med => {
-            const item = document.createElement('div');
-            item.className = 'tarjeta';
-            item.innerHTML = `
-            <h3>${med.nombre} - ${med.dosis}</h3>
-            <p><strong>Hora:</strong> ${med.hora} | <strong>Frecuencia:</strong> ${med.frecuencia}</p>
-            <p><strong>Efectos Secundarios:</strong> ${med.efectosSecundarios}</p>
-            <p><strong>No mezclar con:</strong> ${med.interaccionesNoPermitidas}</p>
-        `;
-            contenedor.appendChild(item);
-        });
+        try {
+            const respuesta = await fetch('/api/medicamentos');
+
+            if (!respuesta.ok) {
+                throw new Error('Error al conectar con la API');
+            }
+
+            const medicamentos = await respuesta.json();
+            contenedor.innerHTML = '';
+
+            if (medicamentos.length === 0) {
+                contenedor.innerHTML = '<p>No hay medicamentos registrados en la base de datos.</p>';
+                return;
+            }
+
+            medicamentos.forEach(med => {
+                const tarjeta = document.createElement('div');
+                tarjeta.className = 'tarjeta-medicamento';
+                tarjeta.innerHTML = `
+                    <h3>${med.nombre} - ${med.dosis || 'N/A'}</h3>
+                    <p><strong>Hora:</strong> ${med.hora || 'No especificada'} | <strong>Frecuencia:</strong> ${med.frecuencia || 'N/A'}</p>
+                    <p><strong>Para qué sirve:</strong> ${med.paraQueSirve || med.categoria || 'Sin información'}</p>
+                    <p><strong>Efectos Secundarios:</strong> ${med.efectosSecundarios || 'Ninguno reportado'}</p>
+                    <p><strong>No mezclar con:</strong> ${med.interaccionesNoPermitidas || 'N/A'}</p>
+                `;
+                contenedor.appendChild(tarjeta);
+            });
+        } catch (error) {
+            contenedor.innerHTML = `<p style="color: red;"><strong>Error:</strong> No se pudo cargar la lista de medicamentos (${error.message}).</p>`;
+        }
     }
 </script>
+
 </body>
 </html>

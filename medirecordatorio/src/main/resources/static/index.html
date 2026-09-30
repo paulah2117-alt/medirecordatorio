@@ -5,122 +5,168 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediRecordatorio - Sistema de Gestión</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f3faf4;
-            color: #0b1f3a;
-            margin: 0;
-            padding: 20px;
-        }
-        main {
-            max-width: 900px;
-            margin: 30px auto;
-            background: white;
-            padding: 32px;
-            border-radius: 18px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        h1 {
-            color: #14532d;
-            margin-bottom: 20px;
-        }
-        .panel-acciones {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-        .btn {
-            background-color: #2e7d32;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            transition: background-color 0.2s ease;
-        }
-        .btn:hover {
-            background-color: #1b5e20;
-        }
-        .btn-secundario {
-            background-color: #0284c7;
-        }
-        .btn-secundario:hover {
-            background-color: #0369a1;
-        }
-        .tarjeta-medicamento {
-            background: #e8f5e9;
-            border-left: 5px solid #2e7d32;
-            margin: 15px 0;
-            padding: 18px;
-            border-radius: 10px;
-        }
-        .tarjeta-medicamento h3 {
-            margin: 0 0 10px 0;
-            color: #0f391b;
-        }
-        .tarjeta-medicamento p {
-            margin: 5px 0;
-            font-size: 0.95rem;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3faf4; color: #0b1f3a; padding: 20px; }
+        main { max-width: 950px; margin: 20px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { color: #14532d; margin-bottom: 10px; }
+        .nav-panel { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-weight: bold; margin-bottom: 4px; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .btn { padding: 9px 16px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; text-decoration: none; display: inline-block; }
+        .btn-green { background-color: #2e7d32; }
+        .btn-blue { background-color: #0284c7; }
+        .btn-red { background-color: #dc2626; }
+        .btn-yellow { background-color: #d97706; }
+        .btn-dark { background-color: #374151; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #e8f5e9; color: #14532d; }
     </style>
 </head>
 <body>
 
 <main>
-    <h1>Recordatorio de Medicamentos</h1>
-    <p>Gestión completa de prescripciones, dosis y horarios cargados desde MySQL.</p>
+    <h1>MediRecordatorio - Panel Principal</h1>
+    <p>Sistema modular para prescripciones, pacientes y personal médico.</p>
 
-    <!-- Botones de Acción y Navegación -->
-    <div class="panel-acciones">
-        <button class="btn" onclick="cargarMedicamentos()">Cargar Medicamentos</button>
-        <a href="/formulario-medicamento.html" class="btn btn-secundario">+ Registrar Nuevo Medicamento</a>
-        <a href="/login-paciente.html" class="btn" style="background-color: #4b5563;">Login Paciente</a>
-        <a href="/login-usuario.html" class="btn" style="background-color: #4b5563;">Login Usuario</a>
+    <!-- NAVEGACIÓN COMPLETA A TODAS LAS VISTAS -->
+    <div class="nav-panel">
+        <a href="/formulario-medicamento" class="btn btn-blue">+ Formulario Medicamentos</a>
+        <a href="/login-paciente" class="btn btn-dark">Login Paciente</a>
+        <a href="/login-usuario" class="btn btn-dark">Login Personal Médico</a>
     </div>
 
-    <!-- Contenedor donde se cargan las tarjetas de MySQL -->
-    <div id="listaMedicamentos"></div>
+    <!-- SECCIÓN CRUD DE MEDICAMENTOS (SEMANA 9) -->
+    <div style="background:#e8f5e9; padding:20px; border-radius:8px; margin-bottom:20px;">
+        <h3 id="formTitle">Registrar Nuevo Medicamento</h3>
+        <input type="hidden" id="medId">
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+            <div class="form-group">
+                <label>Nombre:</label>
+                <input type="text" id="nombre" placeholder="Ej. Losartán">
+            </div>
+            <div class="form-group">
+                <label>Dosis:</label>
+                <input type="text" id="dosis" placeholder="Ej. 50 mg">
+            </div>
+            <div class="form-group">
+                <label>Hora:</label>
+                <input type="text" id="hora" placeholder="Ej. 08:00 AM">
+            </div>
+            <div class="form-group">
+                <label>Frecuencia:</label>
+                <input type="text" id="frecuencia" placeholder="Ej. Cada 12 horas">
+            </div>
+        </div>
+
+        <button class="btn btn-green" onclick="guardarMedicamento()">Guardar Registro</button>
+        <button class="btn btn-yellow" onclick="limpiarFormulario()">Limpiar / Cancelar</button>
+    </div>
+
+    <h3>Medicamentos en Base de Datos MySQL</h3>
+    <button class="btn btn-blue" onclick="cargarMedicamentos()">Refrescar Lista</button>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Dosis</th>
+            <th>Hora</th>
+            <th>Frecuencia</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody id="tablaCuerpo"></tbody>
+    </table>
 </main>
 
 <script>
+    const API_URL = '/api/medicamentos';
+    let listaGlobalMedicamentos = [];
+
+    document.addEventListener("DOMContentLoaded", cargarMedicamentos);
+
     async function cargarMedicamentos() {
-        const contenedor = document.getElementById('listaMedicamentos');
-        contenedor.innerHTML = '<p>Cargando información desde la base de datos...</p>';
-
         try {
-            const respuesta = await fetch('/api/medicamentos');
+            const respuesta = await fetch(API_URL);
+            listaGlobalMedicamentos = await respuesta.json();
+            const tbody = document.getElementById('tablaCuerpo');
+            tbody.innerHTML = '';
 
-            if (!respuesta.ok) {
-                throw new Error('Error al conectar con la API');
-            }
-
-            const medicamentos = await respuesta.json();
-            contenedor.innerHTML = '';
-
-            if (medicamentos.length === 0) {
-                contenedor.innerHTML = '<p>No hay medicamentos registrados en la base de datos.</p>';
-                return;
-            }
-
-            medicamentos.forEach(med => {
-                const tarjeta = document.createElement('div');
-                tarjeta.className = 'tarjeta-medicamento';
-                tarjeta.innerHTML = `
-                    <h3>${med.nombre} - ${med.dosis || 'N/A'}</h3>
-                    <p><strong>Hora:</strong> ${med.hora || 'No especificada'} | <strong>Frecuencia:</strong> ${med.frecuencia || 'N/A'}</p>
-                    <p><strong>Para qué sirve:</strong> ${med.paraQueSirve || med.categoria || 'Sin información'}</p>
-                    <p><strong>Efectos Secundarios:</strong> ${med.efectosSecundarios || 'Ninguno reportado'}</p>
-                    <p><strong>No mezclar con:</strong> ${med.interaccionesNoPermitidas || 'N/A'}</p>
+            listaGlobalMedicamentos.forEach(med => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${med.id}</td>
+                        <td><strong>${med.nombre || ''}</strong></td>
+                        <td>${med.dosis || '-'}</td>
+                        <td>${med.hora || '-'}</td>
+                        <td>${med.frecuencia || '-'}</td>
+                        <td>
+                            <button class="btn btn-yellow" onclick="prepararEdicion(${med.id})">Editar</button>
+                            <button class="btn btn-red" onclick="eliminarMedicamento(${med.id})">Eliminar</button>
+                        </td>
+                    </tr>
                 `;
-                contenedor.appendChild(tarjeta);
             });
-        } catch (error) {
-            contenedor.innerHTML = `<p style="color: red;"><strong>Error:</strong> No se pudo cargar la lista de medicamentos (${error.message}).</p>`;
+        } catch (e) {
+            console.error("Error al cargar lista:", e);
         }
+    }
+
+    function prepararEdicion(id) {
+        const med = listaGlobalMedicamentos.find(m => m.id === id);
+        if (med) {
+            document.getElementById('medId').value = med.id;
+            document.getElementById('nombre').value = med.nombre || '';
+            document.getElementById('dosis').value = med.dosis || '';
+            document.getElementById('hora').value = med.hora || '';
+            document.getElementById('frecuencia').value = med.frecuencia || '';
+            document.getElementById('formTitle').innerText = "Editar Medicamento #" + med.id;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    async function guardarMedicamento() {
+        const idVal = document.getElementById('medId').value;
+        const medicamento = {
+            id: idVal ? parseInt(idVal) : null,
+            nombre: document.getElementById('nombre').value,
+            dosis: document.getElementById('dosis').value,
+            hora: document.getElementById('hora').value,
+            frecuencia: document.getElementById('frecuencia').value
+        };
+
+        if (!medicamento.nombre) {
+            alert("El nombre es obligatorio");
+            return;
+        }
+
+        await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(medicamento)
+        });
+
+        limpiarFormulario();
+        cargarMedicamentos();
+    }
+
+    async function eliminarMedicamento(id) {
+        if (confirm(`¿Seguro que deseas eliminar el registro #${id}?`)) {
+            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            cargarMedicamentos();
+        }
+    }
+
+    function limpiarFormulario() {
+        document.getElementById('medId').value = '';
+        document.getElementById('nombre').value = '';
+        document.getElementById('dosis').value = '';
+        document.getElementById('hora').value = '';
+        document.getElementById('frecuencia').value = '';
+        document.getElementById('formTitle').innerText = "Registrar Nuevo Medicamento";
     }
 </script>
 

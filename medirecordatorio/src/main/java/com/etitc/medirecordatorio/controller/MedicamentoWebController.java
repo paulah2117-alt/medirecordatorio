@@ -15,7 +15,7 @@ public class MedicamentoWebController {
     @Autowired
     private MedicamentoService medicamentoService;
 
-    // Mapeo para mostrar el formulario HTML
+    // Mapeo para mostrar el formulario Thymeleaf HTML
     @GetMapping("/formulario-medicamento")
     public String mostrarFormulario(Model model) {
         model.addAttribute("medicamentoForm", new Medicamento());
@@ -29,15 +29,15 @@ public class MedicamentoWebController {
         return "redirect:/"; // Redirige al inicio / listado principal
     }
 
-    // Login Personal Médico / Usuario
+    // Redirección a Login Personal Médico / Usuario (recurso estático)
     @GetMapping("/login-usuario")
     public String loginUsuario() {
-        return "login-usuario";
+        return "redirect:/login-usuario.html";
     }
 
-    // Login Paciente
+    // Redirección a Login Paciente (recurso estático)
     @GetMapping("/login-paciente")
     public String loginPaciente() {
-        return "login-paciente";
+        return "redirect:/login-paciente.html";
     }
 }

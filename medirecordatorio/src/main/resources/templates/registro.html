@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Usuario</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<main style="max-width: 500px;">
+    <h2>Registro de Nuevo Usuario</h2>
+
+    <form th:action="@{/registro}" th:object="${usuario}" method="post">
+        <div class="form-group">
+            <label>Rol / Tipo de Usuario:</label>
+            <select th:field="*{rol}">
+                <option value="PACIENTE">Paciente</option>
+                <option value="MEDICO">Personal Médico</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Número de Cédula / Documento:</label>
+            <input type="text" th:field="*{documento}">
+            <span class="error-text" th:if="${#fields.hasErrors('documento')}" th:errors="*{documento}"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Nombre Completo:</label>
+            <input type="text" th:field="*{nombreCompleto}">
+            <span class="error-text" th:if="${#fields.hasErrors('nombreCompleto')}" th:errors="*{nombreCompleto}"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Correo Electrónico:</label>
+            <input type="text" th:field="*{email}">
+            <span class="error-text" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Contraseña:</label>
+            <input type="password" th:field="*{password}">
+            <span class="error-text" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+        </div>
+
+        <button type="submit" class="btn btn-green" style="width: 100%;">Registrar Cuenta</button>
+    </form>
+    <br>
+    <a href="/">← Volver al Menú Principal</a>
+</main>
+</body>
+</html>

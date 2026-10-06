@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>MediRecordatorio - Panel Principal</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<main>
+    <h1>MediRecordatorio - Sistema de Gestión</h1>
+
+    <!-- Alertas enviadas desde Backend -->
+    <div th:if="${mensajeExito}" class="alert alert-success" th:text="${mensajeExito}"></div>
+    <div th:if="${mensajeError}" class="alert alert-danger" th:text="${mensajeError}"></div>
+
+    <div style="margin-bottom: 20px;">
+        <span th:if="${usuarioLogueado != null}">
+            Usuario Activo: <strong th:text="${usuarioLogueado.nombreCompleto}"></strong> (<span th:text="${usuarioLogueado.rol}"></span>)
+            | <a href="/logout" class="btn btn-red">Cerrar Sesión</a>
+        </span>
+        <span th:if="${usuarioLogueado == null}">
+            <a href="/login" class="btn btn-blue">Iniciar Sesión</a>
+            <a href="/registro" class="btn btn-green">Registrarse</a>
+        </span>
+    </div>
+
+    <!-- Botón visible solo para Médicos -->
+    <div th:if="${usuarioLogueado != null and usuarioLogueado.rol == 'MEDICO'}" style="margin-bottom: 20px;">
+        <a href="/medicamento/nuevo" class="btn btn-green">+ Formular Medicamento a Paciente</a>
+    </div>
+
+    <!-- Buscador -->
+    <form th:action="@{/}" method="get" style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <input type="text" name="buscar" th:value="${buscar}" placeholder="Buscar medicamento por nombre...">
+        <button type="submit" class="btn btn-blue">Buscar</button>
+        <a href="/" class="btn btn-gray">Limpiar</a>
+    </form>
+
+    <!-- Tabla -->
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Medicamento</th>
+            <th>Dosis</th>
+            <th>Hora</th>
+            <th>Frecuencia</th>
+            <th>Paciente Asignado</th>
+            <th th:if="${usuarioLogueado != null and usuarioLogueado.rol == 'MEDICO'}">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="med : ${page.content}">
+            <td th:text="${med.id}"></td>
+            <td th:text="${med.nombre}"></td>
+            <td th:text="${med.dosis}"></td>
+            <td th:text="${med.hora}"></td>
+            <td th:text="${med.frecuencia}"></td>
+            <td th:text="${med.paciente != null ? med.paciente.nombreCompleto : 'Sin Asignar'}"></td>
+            <td th:if="${usuarioLogueado != null and usuarioLogueado.rol == 'MEDICO'}">
+                <a th:href="@{/medicamento/eliminar/{id}(id=${med.id})}" class="btn btn-red" onclick="return confirm('¿Confirma la eliminación del registro?')">Eliminar</a>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(page.content)}">
+            <td colspan="7" style="text-align: center;">No se encontraron registros en el sistema.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="pagination" th:if="${page.totalPages > 1}">
+        <a th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+           th:href="@{/(page=${i}, buscar=${buscar})}"
+           th:text="${i + 1}"
+           th:classappend="${i == page.number} ? 'active' : ''"></a>
+    </div>
+</main>
+</body>
+</html>

@@ -1,10 +1,7 @@
 package com.etitc.medirecordatorio.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "medicamentos")
@@ -14,44 +11,36 @@ public class Medicamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El nombre del medicamento es obligatorio")
+    @Column(nullable = false)
     private String nombre;
-    private String categoria;
-    private String paraQueSirve;
+
+    @NotBlank(message = "La dosis es obligatoria")
     private String dosis;
+
+    @NotBlank(message = "La hora es obligatoria")
     private String hora;
+
+    @NotBlank(message = "La frecuencia es obligatoria")
     private String frecuencia;
-    private String efectosSecundarios;
-    private String interaccionesNoPermitidas;
 
-    public Medicamento() {
-    }
+    // Relación JPA ManyToOne: Un paciente tiene asignados medicamentos
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "paciente_id")
+    private Usuario paciente;
 
-    public Medicamento(Long id, String nombre, String categoria, String paraQueSirve,
-                       String dosis, String hora, String frecuencia,
-                       String efectosSecundarios, String interaccionesNoPermitidas) {
-        this.id = id;
-        this.nombre = nombre;
-        this.categoria = categoria;
-        this.paraQueSirve = paraQueSirve;
-        this.dosis = dosis;
-        this.hora = hora;
-        this.frecuencia = frecuencia;
-        this.efectosSecundarios = efectosSecundarios;
-        this.interaccionesNoPermitidas = interaccionesNoPermitidas;
-    }
+    // Relación JPA ManyToOne: Un médico formula medicamentos
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "medico_id")
+    private Usuario medico;
 
-    // Getters y Setters
+    public Medicamento() {}
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
-
-    public String getCategoria() { return categoria; }
-    public void setCategoria(String categoria) { this.categoria = categoria; }
-
-    public String getParaQueSirve() { return paraQueSirve; }
-    public void setParaQueSirve(String paraQueSirve) { this.paraQueSirve = paraQueSirve; }
 
     public String getDosis() { return dosis; }
     public void setDosis(String dosis) { this.dosis = dosis; }
@@ -62,9 +51,9 @@ public class Medicamento {
     public String getFrecuencia() { return frecuencia; }
     public void setFrecuencia(String frecuencia) { this.frecuencia = frecuencia; }
 
-    public String getEfectosSecundarios() { return efectosSecundarios; }
-    public void setEfectosSecundarios(String efectosSecundarios) { this.efectosSecundarios = efectosSecundarios; }
+    public Usuario getPaciente() { return paciente; }
+    public void setPaciente(Usuario paciente) { this.paciente = paciente; }
 
-    public String getInteraccionesNoPermitidas() { return interaccionesNoPermitidas; }
-    public void setInteraccionesNoPermitidas(String interaccionesNoPermitidas) { this.interaccionesNoPermitidas = interaccionesNoPermitidas; }
+    public Usuario getMedico() { return medico; }
+    public void setMedico(Usuario medico) { this.medico = medico; }
 }

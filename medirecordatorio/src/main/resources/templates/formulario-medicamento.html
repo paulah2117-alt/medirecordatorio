@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Formular Medicamento</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<main style="max-width: 600px;">
+    <h2>Prescribir Medicamento a Paciente</h2>
+
+    <form th:action="@{/medicamento/guardar}" th:object="${medicamento}" method="post">
+        <div class="form-group">
+            <label>Seleccionar Paciente de la Base de Datos:</label>
+            <select name="pacienteId">
+                <option value="">-- Seleccione un Paciente --</option>
+                <option th:each="p : ${pacientes}" th:value="${p.id}" th:text="${p.nombreCompleto + ' (Doc: ' + p.documento + ')'}"></option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Nombre del Medicamento:</label>
+            <input type="text" th:field="*{nombre}">
+            <span class="error-text" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Dosis:</label>
+            <input type="text" th:field="*{dosis}">
+            <span class="error-text" th:if="${#fields.hasErrors('dosis')}" th:errors="*{dosis}"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Hora:</label>
+            <input type="text" th:field="*{hora}">
+            <span class="error-text" th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Frecuencia:</label>
+            <input type="text" th:field="*{frecuencia}">
+            <span class="error-text" th:if="${#fields.hasErrors('frecuencia')}" th:errors="*{frecuencia}"></span>
+        </div>
+
+        <button type="submit" class="btn btn-green">Guardar y Formular</button>
+        <a href="/" class="btn btn-gray">Cancelar</a>
+    </form>
+</main>
+</body>
+</html>

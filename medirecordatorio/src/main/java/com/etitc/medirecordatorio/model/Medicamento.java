@@ -24,12 +24,10 @@ public class Medicamento {
     @NotBlank(message = "La frecuencia es obligatoria")
     private String frecuencia;
 
-    // Relación JPA ManyToOne: Un paciente tiene asignados medicamentos
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "paciente_id")
     private Usuario paciente;
 
-    // Relación JPA ManyToOne: Un médico formula medicamentos
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "medico_id")
     private Usuario medico;

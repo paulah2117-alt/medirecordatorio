@@ -4,6 +4,9 @@ import com.etitc.medirecordatorio.model.Medicamento;
 import com.etitc.medirecordatorio.model.Usuario;
 import com.etitc.medirecordatorio.service.MedicamentoService;
 import com.etitc.medirecordatorio.service.UsuarioService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,51 +28,53 @@ public class MedicamentoWebController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // 1. Listado Principal con Paginación y Búsqueda
+    // 1. Listado Principal con Paginación, Búsqueda y Lectura de Cookies
     @GetMapping("/")
     public String index(@RequestParam(name = "buscar", required = false) String buscar,
                         @RequestParam(name = "page", defaultValue = "0") int page,
-                        Model model, HttpSession session) {
+                        Model model, HttpSession session, HttpServletRequest request) {
 
         Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
         Page<Medicamento> paginaMedicamentos;
 
-        // Si el usuario es Paciente, solo se cargan sus medicamentos formulados
         if (usuarioLogueado != null && "PACIENTE".equals(usuarioLogueado.getRol())) {
             paginaMedicamentos = medicamentoService.buscarPorPacientePaginado(usuarioLogueado, buscar, page, 5);
         } else {
             paginaMedicamentos = medicamentoService.buscarPaginado(buscar, page, 5);
         }
 
+        // Recuperar preferencia de tema desde Cookie
+        String tema = "claro";
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                if ("pref_tema".equals(c.getName())) {
+                    tema = c.getValue();
+                    break;
+                }
+            }
+        }
+
         model.addAttribute("page", paginaMedicamentos);
         model.addAttribute("buscar", buscar);
         model.addAttribute("usuarioLogueado", usuarioLogueado);
+        model.addAttribute("tema", tema);
 
         return "index";
     }
 
-    // 2. Registro de Usuarios (Pacientes / Personal Médico)
-    @GetMapping("/registro")
-    public String mostrarRegistro(Model model) {
-        model.addAttribute("usuario", new Usuario());
-        return "registro";
+    // 2. Gestión de Cookies de Preferencias (Tema Visual)
+    @GetMapping("/cambiar-tema")
+    public String cambiarTema(@RequestParam String tema, HttpServletResponse response, HttpServletRequest request) {
+        Cookie cookie = new Cookie("pref_tema", tema);
+        cookie.setMaxAge(7 * 24 * 60 * 60); // 7 días de duración
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/");
     }
 
-    @PostMapping("/registro")
-    public String registrarUsuario(@Valid @ModelAttribute("usuario") Usuario usuario,
-                                   BindingResult bindingResult,
-                                   RedirectAttributes redirectAttributes) {
-
-        if (bindingResult.hasErrors()) {
-            return "registro"; // Devuelve errores evaluados en Backend
-        }
-
-        usuarioService.registrarUsuario(usuario);
-        redirectAttributes.addFlashAttribute("mensajeExito", "Usuario registrado correctamente. Inicie sesión.");
-        return "redirect:/login";
-    }
-
-    // 3. Inicio de Sesión
+    // 3. Autenticación y Control de Sesión (HttpSession)
     @GetMapping("/login")
     public String mostrarLogin() {
         return "login";
@@ -94,12 +99,34 @@ public class MedicamentoWebController {
     }
 
     @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
+    public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
+        session.invalidate(); // Cierre explícito de sesión
+        redirectAttributes.addFlashAttribute("mensajeExito", "Sesión cerrada correctamente.");
         return "redirect:/";
     }
 
-    // 4. Formulario de Prescripción Médica (Médico formula a un Paciente)
+    // 4. Registro de Usuarios
+    @GetMapping("/registro")
+    public String mostrarRegistro(Model model) {
+        model.addAttribute("usuario", new Usuario());
+        return "registro";
+    }
+
+    @PostMapping("/registro")
+    public String registrarUsuario(@Valid @ModelAttribute("usuario") Usuario usuario,
+                                   BindingResult bindingResult,
+                                   RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            return "registro";
+        }
+
+        usuarioService.registrarUsuario(usuario);
+        redirectAttributes.addFlashAttribute("mensajeExito", "Usuario registrado correctamente. Inicie sesión.");
+        return "redirect:/login";
+    }
+
+    // 5. Prescripción de Medicamentos
     @GetMapping("/medicamento/nuevo")
     public String nuevoMedicamento(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
@@ -134,11 +161,10 @@ public class MedicamentoWebController {
         }
 
         medicamentoService.guardarMedicamento(medicamento);
-        redirectAttributes.addFlashAttribute("mensajeExito", "Medicamento formulado y guardado con éxito.");
+        redirectAttributes.addFlashAttribute("mensajeExito", "Medicamento formulado con éxito.");
         return "redirect:/";
     }
 
-    // 5. Eliminar Registro
     @GetMapping("/medicamento/eliminar/{id}")
     public String eliminarMedicamento(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         medicamentoService.eliminarMedicamento(id);

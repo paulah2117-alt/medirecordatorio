@@ -5,14 +5,22 @@
     <title>MediRecordatorio - Panel Principal</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body>
+<body th:classappend="${tema == 'oscuro'} ? 'dark-theme' : ''">
 <main>
-    <h1>MediRecordatorio - Sistema de Gestión</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>MediRecordatorio - Sistema de Gestión</h1>
+        <!-- Conmutador de Preferencias (Cookie) -->
+        <div>
+            <a href="/cambiar-tema?tema=claro" class="btn btn-gray" style="padding: 5px 10px; font-size: 0.8rem;">☀️ Claro</a>
+            <a href="/cambiar-tema?tema=oscuro" class="btn btn-gray" style="padding: 5px 10px; font-size: 0.8rem;">🌙 Oscuro</a>
+        </div>
+    </div>
 
-    <!-- Alertas enviadas desde Backend -->
+    <!-- Alertas Flash desde Backend -->
     <div th:if="${mensajeExito}" class="alert alert-success" th:text="${mensajeExito}"></div>
     <div th:if="${mensajeError}" class="alert alert-danger" th:text="${mensajeError}"></div>
 
+    <!-- Gestión de Sesión -->
     <div style="margin-bottom: 20px;">
         <span th:if="${usuarioLogueado != null}">
             Usuario Activo: <strong th:text="${usuarioLogueado.nombreCompleto}"></strong> (<span th:text="${usuarioLogueado.rol}"></span>)
@@ -24,7 +32,7 @@
         </span>
     </div>
 
-    <!-- Botón visible solo para Médicos -->
+    <!-- Botón visible solo para Personal Médico -->
     <div th:if="${usuarioLogueado != null and usuarioLogueado.rol == 'MEDICO'}" style="margin-bottom: 20px;">
         <a href="/medicamento/nuevo" class="btn btn-green">+ Formular Medicamento a Paciente</a>
     </div>
@@ -36,7 +44,7 @@
         <a href="/" class="btn btn-gray">Limpiar</a>
     </form>
 
-    <!-- Tabla -->
+    <!-- Tabla de Registros -->
     <table>
         <thead>
         <tr>
@@ -67,7 +75,7 @@
         </tbody>
     </table>
 
-    <!-- Paginación -->
+    <!-- Bloque de Paginación -->
     <div class="pagination" th:if="${page.totalPages > 1}">
         <a th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
            th:href="@{/(page=${i}, buscar=${buscar})}"

@@ -2,49 +2,59 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Formular Medicamento</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <title>Formular Medicamento - MEDIRECORDATORIO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-<main style="max-width: 600px;">
-    <h2>Prescribir Medicamento a Paciente</h2>
+<body class="bg-light py-5">
+<div class="container" style="max-width: 600px;">
+    <div class="card shadow-lg border-0 rounded-4 p-4">
+        <h2 class="text-success mb-4 text-center fw-bold">⏰ Formular Medicamento 💊</h2>
 
-    <form th:action="@{/medicamento/guardar}" th:object="${medicamento}" method="post">
-        <div class="form-group">
-            <label>Seleccionar Paciente de la Base de Datos:</label>
-            <select name="pacienteId">
-                <option value="">-- Seleccione un Paciente --</option>
-                <option th:each="p : ${pacientes}" th:value="${p.id}" th:text="${p.nombreCompleto + ' (Doc: ' + p.documento + ')'}"></option>
-            </select>
-        </div>
+        <!-- Alerta de validación cuando se intenta guardar sin paciente -->
+        <div th:if="${mensajeErrorPaciente}" class="alert alert-danger fw-bold text-center" th:text="${mensajeErrorPaciente}"></div>
 
-        <div class="form-group">
-            <label>Nombre del Medicamento:</label>
-            <input type="text" th:field="*{nombre}">
-            <span class="error-text" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></span>
-        </div>
+        <form th:action="@{/medicamento/guardar}" th:object="${medicamento}" method="post">
+            <div class="mb-3">
+                <label for="nombre" class="form-label fw-bold">Nombre del Medicamento:</label>
+                <input type="text" th:field="*{nombre}" class="form-control" id="nombre">
+                <div class="text-danger small fw-bold" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+            </div>
 
-        <div class="form-group">
-            <label>Dosis:</label>
-            <input type="text" th:field="*{dosis}">
-            <span class="error-text" th:if="${#fields.hasErrors('dosis')}" th:errors="*{dosis}"></span>
-        </div>
+            <div class="mb-3">
+                <label for="dosis" class="form-label fw-bold">Dosis:</label>
+                <input type="text" th:field="*{dosis}" class="form-control" id="dosis">
+                <div class="text-danger small fw-bold" th:if="${#fields.hasErrors('dosis')}" th:errors="*{dosis}"></div>
+            </div>
 
-        <div class="form-group">
-            <label>Hora:</label>
-            <input type="text" th:field="*{hora}">
-            <span class="error-text" th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}"></span>
-        </div>
+            <div class="mb-3">
+                <label for="hora" class="form-label fw-bold">Hora:</label>
+                <input type="text" th:field="*{hora}" class="form-control" id="hora">
+                <div class="text-danger small fw-bold" th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}"></div>
+            </div>
 
-        <div class="form-group">
-            <label>Frecuencia:</label>
-            <input type="text" th:field="*{frecuencia}">
-            <span class="error-text" th:if="${#fields.hasErrors('frecuencia')}" th:errors="*{frecuencia}"></span>
-        </div>
+            <div class="mb-3">
+                <label for="frecuencia" class="form-label fw-bold">Frecuencia:</label>
+                <input type="text" th:field="*{frecuencia}" class="form-control" id="frecuencia">
+                <div class="text-danger small fw-bold" th:if="${#fields.hasErrors('frecuencia')}" th:errors="*{frecuencia}"></div>
+            </div>
 
-        <button type="submit" class="btn btn-green">Guardar y Formular</button>
-        <a href="/" class="btn btn-gray">Cancelar</a>
-    </form>
-</main>
+            <div class="mb-4">
+                <label for="pacienteId" class="form-label fw-bold">Paciente Asignado:</label>
+                <select id="pacienteId" name="pacienteId" class="form-select">
+                    <option value="">-- Seleccione un paciente --</option>
+                    <option th:each="paciente : ${pacientes}"
+                            th:value="${paciente.id}"
+                            th:text="${paciente.nombreCompleto} + ' (' + ${paciente.documento} + ')'">
+                    </option>
+                </select>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-success fw-bold">Guardar Medicamento</button>
+                <a href="/" class="btn btn-secondary fw-bold">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>

@@ -28,7 +28,6 @@ public class MedicamentoWebController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // 1. Listado Principal con Paginación, Búsqueda y Lectura de Cookies
     @GetMapping("/")
     public String index(@RequestParam(name = "buscar", required = false) String buscar,
                         @RequestParam(name = "page", defaultValue = "0") int page,
@@ -43,7 +42,6 @@ public class MedicamentoWebController {
             paginaMedicamentos = medicamentoService.buscarPaginado(buscar, page, 5);
         }
 
-        // Recuperar preferencia de tema desde Cookie
         String tema = "claro";
         if (request.getCookies() != null) {
             for (Cookie c : request.getCookies()) {
@@ -62,11 +60,10 @@ public class MedicamentoWebController {
         return "index";
     }
 
-    // 2. Gestión de Cookies de Preferencias (Tema Visual)
     @GetMapping("/cambiar-tema")
     public String cambiarTema(@RequestParam String tema, HttpServletResponse response, HttpServletRequest request) {
         Cookie cookie = new Cookie("pref_tema", tema);
-        cookie.setMaxAge(7 * 24 * 60 * 60); // 7 días de duración
+        cookie.setMaxAge(7 * 24 * 60 * 60);
         cookie.setPath("/");
         response.addCookie(cookie);
 
@@ -74,9 +71,11 @@ public class MedicamentoWebController {
         return "redirect:" + (referer != null ? referer : "/");
     }
 
-    // 3. Autenticación y Control de Sesión (HttpSession)
     @GetMapping("/login")
-    public String mostrarLogin() {
+    public String mostrarLogin(@RequestParam(required = false) String expirado, Model model) {
+        if ("true".equals(expirado)) {
+            model.addAttribute("mensajeError", "Su sesión se ha cerrado por inactividad.");
+        }
         return "login";
     }
 
@@ -94,18 +93,17 @@ public class MedicamentoWebController {
             return "redirect:/";
         }
 
-        redirectAttributes.addFlashAttribute("mensajeError", "Documento o contraseña incorrectos.");
+        redirectAttributes.addFlashAttribute("mensajeError", "El usuario no existe o las credenciales son incorrectas. Por favor verifique o regístrese.");
         return "redirect:/login";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
-        session.invalidate(); // Cierre explícito de sesión
+        session.invalidate();
         redirectAttributes.addFlashAttribute("mensajeExito", "Sesión cerrada correctamente.");
-        return "redirect:/";
+        return "redirect:/login";
     }
 
-    // 4. Registro de Usuarios
     @GetMapping("/registro")
     public String mostrarRegistro(Model model) {
         model.addAttribute("usuario", new Usuario());
@@ -126,7 +124,6 @@ public class MedicamentoWebController {
         return "redirect:/login";
     }
 
-    // 5. Prescripción de Medicamentos
     @GetMapping("/medicamento/nuevo")
     public String nuevoMedicamento(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
@@ -143,10 +140,17 @@ public class MedicamentoWebController {
     @PostMapping("/medicamento/guardar")
     public String guardarMedicamento(@Valid @ModelAttribute("medicamento") Medicamento medicamento,
                                      BindingResult bindingResult,
-                                     @RequestParam(required = false) Long pacienteId,
+                                     @RequestParam(name = "pacienteId", required = false) Long pacienteId,
                                      HttpSession session,
                                      Model model,
                                      RedirectAttributes redirectAttributes) {
+
+        // Validar obligatoriedad de selección de paciente
+        if (pacienteId == null) {
+            model.addAttribute("mensajeErrorPaciente", "Debe seleccionar un paciente para formular el medicamento.");
+            model.addAttribute("pacientes", usuarioService.listarPacientes());
+            return "formulario-medicamento";
+        }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("pacientes", usuarioService.listarPacientes());
@@ -156,9 +160,7 @@ public class MedicamentoWebController {
         Usuario medico = (Usuario) session.getAttribute("usuarioLogueado");
         medicamento.setMedico(medico);
 
-        if (pacienteId != null) {
-            usuarioService.buscarPorId(pacienteId).ifPresent(medicamento::setPaciente);
-        }
+        usuarioService.buscarPorId(pacienteId).ifPresent(medicamento::setPaciente);
 
         medicamentoService.guardarMedicamento(medicamento);
         redirectAttributes.addFlashAttribute("mensajeExito", "Medicamento formulado con éxito.");
@@ -170,5 +172,10 @@ public class MedicamentoWebController {
         medicamentoService.eliminarMedicamento(id);
         redirectAttributes.addFlashAttribute("mensajeExito", "Registro eliminado correctamente.");
         return "redirect:/";
+    }
+
+    @GetMapping("/probar-error-500")
+    public String probarError500() {
+        throw new RuntimeException("Prueba intencional de Error 500");
     }
 }

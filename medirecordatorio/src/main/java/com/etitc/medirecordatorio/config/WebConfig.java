@@ -11,6 +11,17 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login", "/registro", "/css/**", "/js/**", "/images/**", "/error", "/probar-error-500");
+                .excludePathPatterns(
+                        "/login",
+                        "/registro",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/error",
+                        "/error/**",
+                        "/probar-error-500",
+                        "/probar-error-400",
+                        "/api/**" // Permite consumir la API REST desde Postman sin redirecciones
+                );
     }
 }

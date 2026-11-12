@@ -59,6 +59,12 @@
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
 
+		<!-- Project Reactor Core para programación reactiva (Semana 15) -->
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-core</artifactId>
+		</dependency>
+
 		<!-- DevTools (Recarga automática en desarrollo) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -83,23 +89,4 @@
 			</plugin>
 		</plugins>
 	</build>
-</project>
-
-		<!-- Starter Test -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
-
 </project>

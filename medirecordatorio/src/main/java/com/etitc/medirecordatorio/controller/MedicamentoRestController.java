@@ -1,81 +1,75 @@
 package com.etitc.medirecordatorio.controller;
 
-import com.etitc.medirecordatorio.model.Medicamento;
-import com.etitc.medirecordatorio.model.Usuario;
-import com.etitc.medirecordatorio.repository.MedicamentoRepository;
-import com.etitc.medirecordatorio.repository.UsuarioRepository;
+import com.etitc.medirecordatorio.dto.MedicamentoRequestDTO;
+import com.etitc.medirecordatorio.dto.MedicamentoResponseDTO;
+import com.etitc.medirecordatorio.service.MedicamentoRestService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.*;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/medicamentos")
 public class MedicamentoRestController {
 
     @Autowired
-    private MedicamentoRepository medicamentoRepository;
+    private MedicamentoRestService medicamentoRestService;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    // 1. GET: Consultar todos los registros (200 OK)
+    // 1. GET /api/medicamentos -> 200 OK
     @GetMapping
-    public ResponseEntity<List<Medicamento>> listarTodos() {
-        return ResponseEntity.ok(medicamentoRepository.findAll());
+    public ResponseEntity<List<MedicamentoResponseDTO>> listarTodos() {
+        return ResponseEntity.ok(medicamentoRestService.listarTodos());
     }
 
-    // 2. GET por ID: Consultar un registro por su clave primaria (200 OK / 404 Not Found)
+    // 2. GET /api/medicamentos/{id} -> 200 OK / 404 Not Found
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
-        Optional<Medicamento> medOpt = medicamentoRepository.findById(id);
-        if (medOpt.isPresent()) {
-            return ResponseEntity.ok(medOpt.get());
+        Optional<MedicamentoResponseDTO> dtoOpt = medicamentoRestService.obtenerPorId(id);
+        if (dtoOpt.isPresent()) {
+            return ResponseEntity.ok(dtoOpt.get());
         }
         Map<String, String> error = new HashMap<>();
         error.put("error", "Medicamento con ID " + id + " no encontrado.");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    // 3. POST: Crear un nuevo registro (201 Created / 400 Bad Request)
+    // 3. POST /api/medicamentos -> 201 Created con cabecera Location / 400 Bad Request
     @PostMapping
-    public ResponseEntity<?> crearMedicamento(@Valid @RequestBody Medicamento medicamento, BindingResult bindingResult) {
+    public ResponseEntity<?> crearMedicamento(@Valid @RequestBody MedicamentoRequestDTO request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errores = new HashMap<>();
             bindingResult.getFieldErrors().forEach(e -> errores.put(e.getField(), e.getDefaultMessage()));
             return ResponseEntity.badRequest().body(errores);
         }
 
-        if (medicamento.getPaciente() == null || medicamento.getPaciente().getId() == null) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Debe incluir un paciente válido con su ID.");
-            return ResponseEntity.badRequest().body(error);
+        try {
+            MedicamentoResponseDTO creado = medicamentoRestService.crear(request);
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("/{id}")
+                    .buildAndExpand(creado.getId())
+                    .toUri();
+            return ResponseEntity.created(location).body(creado);
+        } catch (IllegalArgumentException ex) {
+            Map<String, String> err = new HashMap<>();
+            err.put("error", ex.getMessage());
+            return ResponseEntity.badRequest().body(err);
         }
-
-        Optional<Usuario> pacOpt = usuarioRepository.findById(medicamento.getPaciente().getId());
-        if (pacOpt.isEmpty()) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "El paciente con ID " + medicamento.getPaciente().getId() + " no existe.");
-            return ResponseEntity.badRequest().body(error);
-        }
-        medicamento.setPaciente(pacOpt.get());
-
-        if (medicamento.getMedico() != null && medicamento.getMedico().getId() != null) {
-            usuarioRepository.findById(medicamento.getMedico().getId()).ifPresent(medicamento::setMedico);
-        }
-
-        Medicamento guardado = medicamentoRepository.save(medicamento);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
-    // 4. PUT: Actualizar un registro existente (200 OK / 400 Bad Request / 404 Not Found)
+    // 4. PUT /api/medicamentos/{id} -> 200 OK / 400 Bad Request / 404 Not Found
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarMedicamento(@PathVariable Long id,
-                                                   @Valid @RequestBody Medicamento datos,
+                                                   @Valid @RequestBody MedicamentoRequestDTO request,
                                                    BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errores = new HashMap<>();
@@ -83,44 +77,30 @@ public class MedicamentoRestController {
             return ResponseEntity.badRequest().body(errores);
         }
 
-        Optional<Medicamento> medOpt = medicamentoRepository.findById(id);
-        if (medOpt.isEmpty()) {
+        try {
+            Optional<MedicamentoResponseDTO> actualizadoOpt = medicamentoRestService.actualizar(id, request);
+            if (actualizadoOpt.isPresent()) {
+                return ResponseEntity.ok(actualizadoOpt.get());
+            }
             Map<String, String> error = new HashMap<>();
             error.put("error", "Medicamento con ID " + id + " no encontrado para actualizar.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        } catch (IllegalArgumentException ex) {
+            Map<String, String> err = new HashMap<>();
+            err.put("error", ex.getMessage());
+            return ResponseEntity.badRequest().body(err);
         }
-
-        Medicamento existente = medOpt.get();
-        existente.setNombre(datos.getNombre());
-        existente.setDosis(datos.getDosis());
-        existente.setHora(datos.getHora());
-        existente.setFrecuencia(datos.getFrecuencia());
-
-        if (datos.getPaciente() != null && datos.getPaciente().getId() != null) {
-            usuarioRepository.findById(datos.getPaciente().getId()).ifPresent(existente::setPaciente);
-        }
-
-        if (datos.getMedico() != null && datos.getMedico().getId() != null) {
-            usuarioRepository.findById(datos.getMedico().getId()).ifPresent(existente::setMedico);
-        }
-
-        Medicamento actualizado = medicamentoRepository.save(existente);
-        return ResponseEntity.ok(actualizado);
     }
 
-    // 5. DELETE: Eliminar un registro (200 OK / 404 Not Found)
+    // 5. DELETE /api/medicamentos/{id} -> 204 No Content / 404 Not Found
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarMedicamento(@PathVariable Long id) {
-        Optional<Medicamento> medOpt = medicamentoRepository.findById(id);
-        if (medOpt.isEmpty()) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Medicamento con ID " + id + " no encontrado para eliminar.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        boolean eliminado = medicamentoRestService.eliminar(id);
+        if (eliminado) {
+            return ResponseEntity.noContent().build(); // 204 No Content sin cuerpo
         }
-
-        medicamentoRepository.deleteById(id);
-        Map<String, String> ok = new HashMap<>();
-        ok.put("mensaje", "Medicamento con ID " + id + " eliminado con éxito.");
-        return ResponseEntity.ok(ok);
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Medicamento con ID " + id + " no encontrado para eliminar.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 }

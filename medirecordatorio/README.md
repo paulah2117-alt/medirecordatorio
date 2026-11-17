@@ -57,3 +57,24 @@ Exposición de endpoints RESTful para administrar el ciclo de vida de los medica
   "pacienteId": 1,
   "medicoId": 2
 }
+```
+
+## Semana 16 - Spring WebFlux, Streaming SSE y WebClient
+
+### Arquitectura del Módulo Reactivo (`semana16-webflux`)
+Se implementó un módulo reactivo independiente sobre Netty (`spring-boot-starter-webflux` en puerto `8085`) conservando intacta la aplicación principal Spring MVC + API REST (`/api/medicamentos` en puerto `8080`).
+
+### Endpoints Implementados
+| Método | Endpoint | Tipo Retorno | Descripción |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/reactive/saludo/{paciente}` | `Mono<String>` | Emite un saludo individual confirmando el monitoreo del paciente |
+| `GET` | `/api/v1/reactive/alertas-dosis` | `Flux<String>` (`text/event-stream`) | Emite progresivamente 5 alertas de dosis (1 por segundo) usando `interval()`, `take(5)` y `map()` |
+| `GET` | `/api/v1/reactive/estado-farmacia` | `Mono<String>` | Consume mediante `WebClient` el servicio `/api/v1/fuente/estado-farmacia` con `timeout(3s)` y `onErrorResume()` |
+
+### Ejecución y Pruebas
+```bash
+cd semana16-webflux
+mvn spring-boot:run
+curl -i http://localhost:8085/api/v1/reactive/saludo/Carlos
+curl -N http://localhost:8085/api/v1/reactive/alertas-dosis
+curl -i http://localhost:8085/api/v1/reactive/estado-farmacia
